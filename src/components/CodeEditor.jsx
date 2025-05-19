@@ -1,12 +1,13 @@
-import { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Box, HStack, Button, useToast, IconButton } from "@chakra-ui/react";
 import { Editor } from "@monaco-editor/react";
+import { FaPlay, FaDownload, FaSun, FaMoon } from "react-icons/fa";
+import { MdDelete } from "react-icons/md";
+
 import LanguageSelector from "./LanguageSelector";
 import { CODE_SNIPPETS } from "../constants";
 import Output from "./Output";
 import { executeCode } from "../api";
-import { SunIcon, MoonIcon, LinkIcon, RepeatIcon } from "@chakra-ui/icons";
-import { FaGithub, FaUserCircle } from "react-icons/fa";
 
 const CodeEditor = () => {
   const editorRef = useRef();
@@ -19,14 +20,17 @@ const CodeEditor = () => {
   const [theme, setTheme] = useState("vs-dark");
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem("theme") || "vs-dark";
-    setTheme(savedTheme);
-  }, []);
+    setValue(CODE_SNIPPETS[language]);
+  }, [language]);
 
-  const toggleTheme = () => {
-    const newTheme = theme === "vs-dark" ? "light" : "vs-dark";
-    setTheme(newTheme);
-    localStorage.setItem("theme", newTheme);
+  const onMount = (editor) => {
+    editorRef.current = editor;
+    editor.focus();
+  };
+
+  const onSelect = (language) => {
+    setLanguage(language);
+    setValue(CODE_SNIPPETS[language]);
   };
 
   const runCode = async () => {
@@ -38,10 +42,20 @@ const CodeEditor = () => {
       setOutput(result.output.split("\n"));
       result.stderr ? setIsError(true) : setIsError(false);
     } catch (error) {
-      toast({ title: "Error", description: error.message, status: "error" });
+      toast({
+        title: "An error occurred.",
+        description: error.message || "Unable to run code",
+        status: "error",
+        duration: 6000,
+      });
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const clearOutput = () => {
+    setOutput(null);
+    setIsError(false);
   };
 
   const downloadCode = () => {
@@ -54,35 +68,60 @@ const CodeEditor = () => {
     URL.revokeObjectURL(url);
   };
 
+  const toggleTheme = () => {
+    setTheme(theme === "vs-dark" ? "light" : "vs-dark");
+  };
+
   return (
     <Box>
-      <HStack justifyContent="space-between" mb={4}>
-        <HStack spacing={4}>
-          <LanguageSelector language={language} onSelect={setLanguage} />
-          <Button onClick={runCode} isLoading={isLoading}>Run Code </Button>
-          <Button onClick={downloadCode}>Download</Button>
-          <IconButton icon={<RepeatIcon />} onClick={() => setOutput(null)} />
-          <IconButton icon={<LinkIcon />} />
-        </HStack>
-
+      <HStack spacing={4} mb={4} justifyContent="space-between">
+        <LanguageSelector language={language} onSelect={onSelect} />
         <HStack spacing={2}>
-          <IconButton icon={theme === "vs-dark" ? <SunIcon /> : <MoonIcon />} onClick={toggleTheme} />
-          <FaGithub size={24} />
-          <FaUserCircle size={24} />
+          <IconButton 
+            icon={theme === "vs-dark" ? <FaMoon /> : <FaSun />} 
+            onClick={toggleTheme} 
+            aria-label="Toggle Theme" 
+          />
+          <Button
+            variant="solid"
+            colorScheme="green"
+            isLoading={isLoading}
+            onClick={runCode}
+            leftIcon={<FaPlay />}
+          >
+            Run
+          </Button>
+          <Button variant="outline" colorScheme="red" onClick={clearOutput}    
+            leftIcon={<MdDelete />}  
+  >
+            Clear 
+          </Button>
+          <Button
+            variant="outline"
+            colorScheme="blue"
+            onClick={downloadCode}
+            leftIcon={<FaDownload />}
+          >
+            Download
+          </Button>
         </HStack>
       </HStack>
-
-      <Editor
-        options={{ minimap: { enabled: false } }}
-        height="75vh"
-        theme={theme}
-        language={language}
-        value={value}
-        onChange={(value) => setValue(value)}
-        onMount={(editor) => (editorRef.current = editor)}
-      />
-
-      <Output output={output} isError={isError} />
+      <HStack spacing={4} align="flex-start">
+        <Box w="50%">
+          <Editor
+            options={{ minimap: { enabled: false } }}
+            height="75vh"
+            theme={theme}
+            language={language}
+            value={value}
+            onMount={onMount}
+            onChange={(value) => setValue(value)}
+          />
+        </Box>
+        <Box w="50%" bg="gray.800" color="white" p={4} rounded="md">
+          <Output output={output} isError={isError} />
+        </Box>
+      </HStack>
     </Box>
   );
 };
