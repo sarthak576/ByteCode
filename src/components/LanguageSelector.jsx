@@ -3,40 +3,69 @@ import {
   Button,
   Menu,
   MenuButton,
-  MenuItem,
   MenuList,
+  MenuItem,
   Text,
+  Flex,
+  Icon,
+  useColorModeValue
 } from "@chakra-ui/react";
-import { LANGUAGE_VERSIONS } from "../constants";
+import { FaChevronDown } from "react-icons/fa";
+import { SiJavascript, SiPython} from "react-icons/si";
+import { FaJava } from "react-icons/fa6";
 
-const languages = Object.entries(LANGUAGE_VERSIONS);
-const ACTIVE_COLOR = "blue.400";
+
+// Modern language versions (2023 standards)
+const LANGUAGE_VERSIONS = {
+  "javascript": "ES2023",
+  "python": "3.11",
+  "java": "21"
+};
+
+const languageIcons = {
+  javascript: SiJavascript,
+  python: SiPython,
+  java: FaJava
+};
 
 const LanguageSelector = ({ language, onSelect }) => {
+  const activeColor = useColorModeValue("blue.500", "blue.300");
+  const menuBg = useColorModeValue("white", "gray.800");
+  const hoverBg = useColorModeValue("gray.100", "gray.700");
+
   return (
-    <Box ml={2} mb={4}>
-      <Text mb={2} fontSize="lg">
-        Language:
-      </Text>
-      <Menu isLazy>
-        <MenuButton as={Button}>{language}</MenuButton>
-        <MenuList bg="#110c1b">
-          {languages.map(([lang, version]) => (
-            <MenuItem
+    <Box>
+      <Menu>
+        <MenuButton 
+          as={Button} 
+          rightIcon={<FaChevronDown />}
+          minW="150px"
+          variant="outline"
+          _hover={{ bg: hoverBg }}
+          _expanded={{ bg: hoverBg }}
+        >
+          <Flex align="center" gap={2}>
+            <Icon as={languageIcons[language]} color={activeColor} />
+            <Text textTransform="capitalize">{language}</Text>
+          </Flex>
+        </MenuButton>
+        <MenuList bg={menuBg} boxShadow="xl">
+          {Object.entries(LANGUAGE_VERSIONS).map(([lang, version]) => (
+            <MenuItem 
               key={lang}
-              color={lang === language ? ACTIVE_COLOR : ""}
-              bg={lang === language ? "gray.900" : "transparent"}
-              _hover={{
-                color: ACTIVE_COLOR,
-                bg: "gray.900",
-              }}
               onClick={() => onSelect(lang)}
+              bg={lang === language ? hoverBg : "transparent"}
+              _hover={{ bg: hoverBg }}
             >
-              {lang}
-              &nbsp;
-              <Text as="span" color="gray.600" fontSize="sm">
-                ({version})
-              </Text>
+              <Flex align="center" gap={3} w="100%">
+                <Icon as={languageIcons[lang]} boxSize={5} />
+                <Text textTransform="capitalize" flex={1}>
+                  {lang}
+                </Text>
+                <Text fontSize="sm" color="gray.500">
+                  {version}
+                </Text>
+              </Flex>
             </MenuItem>
           ))}
         </MenuList>
@@ -44,4 +73,5 @@ const LanguageSelector = ({ language, onSelect }) => {
     </Box>
   );
 };
+
 export default LanguageSelector;
