@@ -1,8 +1,14 @@
-// CodeEditor.jsx
 import React, { useRef, useState, useEffect } from "react";
-import { Box, HStack, Button, useToast, IconButton } from "@chakra-ui/react";
+import { 
+  Box, 
+  HStack, 
+  Button, 
+  useToast, 
+  IconButton,
+  useColorMode  // Added for global theme
+} from "@chakra-ui/react";
 import { Editor } from "@monaco-editor/react";
-import { FaPlay, FaDownload, FaSun, FaMoon } from "react-icons/fa";
+import { FaPlay, FaDownload, FaSun, FaMoon, FaUpload } from "react-icons/fa"; // Added FaUpload
 import LanguageSelector from "./LanguageSelector";
 import { CODE_SNIPPETS } from "../constants";
 import Output from "./Output";
@@ -16,7 +22,10 @@ const CodeEditor = () => {
   const [output, setOutput] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
-  const [theme, setTheme] = useState("vs-dark");
+  const { colorMode, toggleColorMode } = useColorMode(); // Global theme control
+
+  // Editor theme now syncs with global theme
+  const editorTheme = colorMode === 'light' ? 'light' : 'vs-dark';
 
   useEffect(() => {
     setValue(CODE_SNIPPETS[language]);
@@ -67,23 +76,38 @@ const CodeEditor = () => {
     URL.revokeObjectURL(url);
   };
 
-  const toggleTheme = () => {
-    setTheme(theme === "vs-dark" ? "light" : "vs-dark");
+  // Deploy function placeholder
+  const handleDeploy = () => {
+    toast({
+      title: "Deployment Initiated",
+      description: "Your code is being deployed...",
+      status: "info",
+      duration: 3000,
+    });
+    // Add actual deployment logic here
   };
 
   return (
-    <Box height="100vh" display="flex" flexDirection="column">
+    <Box height="100vh" display="flex" flexDirection="column" bg={colorMode === 'light' ? 'gray.50' : 'gray.900'}>
       {/* Toolbar */}
-      <Box bg="gray.800" p={2}>
+      <Box bg={colorMode === 'light' ? 'gray.100' : 'gray.800'} p={2}>
         <HStack spacing={4} justifyContent="space-between">
           <LanguageSelector language={language} onSelect={onSelect} />
           <HStack spacing={2}>
             <IconButton 
-              icon={theme === "vs-dark" ? <FaMoon /> : <FaSun />} 
-              onClick={toggleTheme} 
+              icon={colorMode === 'light' ? <FaMoon /> : <FaSun />} 
+              onClick={toggleColorMode} 
               aria-label="Toggle Theme"
               colorScheme="teal"
             />
+            <Button
+              variant="outline"
+              colorScheme="purple"
+              onClick={handleDeploy}
+              leftIcon={<FaUpload />}
+            >
+              Deploy
+            </Button>
             <Button
               variant="solid"
               colorScheme="green"
@@ -114,7 +138,7 @@ const CodeEditor = () => {
               scrollBeyondLastLine: false
             }}
             height="100%"
-            theme={theme}
+            theme={editorTheme}
             language={language}
             value={value}
             onMount={onMount}
@@ -126,6 +150,7 @@ const CodeEditor = () => {
             output={output} 
             isError={isError} 
             onClear={clearOutput} 
+            colorMode={colorMode}
           />
         </Box>
       </Box>
