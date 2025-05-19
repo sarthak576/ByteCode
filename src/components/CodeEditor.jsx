@@ -91,7 +91,7 @@ const CodeEditor = () => {
           >
             Run
           </Button>
-          <Button variant="outline" colorScheme="red" onClick={clearOutput}    
+          <Button variant="solid" colorScheme="red" onClick={clearOutput}    
             leftIcon={<MdDelete />}  
   >
             Clear 
@@ -107,7 +107,7 @@ const CodeEditor = () => {
         </HStack>
       </HStack>
       <HStack spacing={4} align="flex-start">
-        <Box w="50%">
+        <Box w="50%" rounded="md">
           <Editor
             options={{ minimap: { enabled: false } }}
             height="75vh"
