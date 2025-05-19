@@ -19,6 +19,7 @@
     "express": "^5.1.0",
     "express-session": "^1.18.1",
     "framer-motion": "^11.0.3",
+    "mongodb": "^6.16.0",
     "mongoose": "^8.15.0",
     "next-auth": "^5.0.0-beta.28",
     "passport": "^0.7.0",
