@@ -1,9 +1,8 @@
+// CodeEditor.jsx
 import React, { useRef, useState, useEffect } from "react";
 import { Box, HStack, Button, useToast, IconButton } from "@chakra-ui/react";
 import { Editor } from "@monaco-editor/react";
 import { FaPlay, FaDownload, FaSun, FaMoon } from "react-icons/fa";
-import { MdDelete } from "react-icons/md";
-
 import LanguageSelector from "./LanguageSelector";
 import { CODE_SNIPPETS } from "../constants";
 import Output from "./Output";
@@ -73,44 +72,48 @@ const CodeEditor = () => {
   };
 
   return (
-    <Box>
-      <HStack spacing={4} mb={4} justifyContent="space-between">
-        <LanguageSelector language={language} onSelect={onSelect} />
-        <HStack spacing={2}>
-          <IconButton 
-            icon={theme === "vs-dark" ? <FaMoon /> : <FaSun />} 
-            onClick={toggleTheme} 
-            aria-label="Toggle Theme" 
-          />
-          <Button
-            variant="solid"
-            colorScheme="green"
-            isLoading={isLoading}
-            onClick={runCode}
-            leftIcon={<FaPlay />}
-          >
-            Run
-          </Button>
-          <Button variant="solid" colorScheme="red" onClick={clearOutput}    
-            leftIcon={<MdDelete />}  
-  >
-            Clear 
-          </Button>
-          <Button
-            variant="outline"
-            colorScheme="blue"
-            onClick={downloadCode}
-            leftIcon={<FaDownload />}
-          >
-            Download
-          </Button>
+    <Box height="100vh" display="flex" flexDirection="column">
+      {/* Toolbar */}
+      <Box bg="gray.800" p={2}>
+        <HStack spacing={4} justifyContent="space-between">
+          <LanguageSelector language={language} onSelect={onSelect} />
+          <HStack spacing={2}>
+            <IconButton 
+              icon={theme === "vs-dark" ? <FaMoon /> : <FaSun />} 
+              onClick={toggleTheme} 
+              aria-label="Toggle Theme"
+              colorScheme="teal"
+            />
+            <Button
+              variant="solid"
+              colorScheme="green"
+              isLoading={isLoading}
+              onClick={runCode}
+              leftIcon={<FaPlay />}
+            >
+              Run
+            </Button>
+            <Button
+              variant="outline"
+              colorScheme="blue"
+              onClick={downloadCode}
+              leftIcon={<FaDownload />}
+            >
+              Download
+            </Button>
+          </HStack>
         </HStack>
-      </HStack>
-      <HStack spacing={4} align="flex-start">
-        <Box w="50%" rounded="md">
+      </Box>
+
+      {/* Editor and Output */}
+      <Box flex={1} display="flex" overflow="hidden">
+        <Box width="50%" p={2}>
           <Editor
-            options={{ minimap: { enabled: false } }}
-            height="75vh"
+            options={{ 
+              minimap: { enabled: false },
+              scrollBeyondLastLine: false
+            }}
+            height="100%"
             theme={theme}
             language={language}
             value={value}
@@ -118,10 +121,14 @@ const CodeEditor = () => {
             onChange={(value) => setValue(value)}
           />
         </Box>
-        <Box w="50%" bg="gray.800" color="white" p={4} rounded="md">
-          <Output output={output} isError={isError} />
+        <Box width="50%" p={2}>
+          <Output 
+            output={output} 
+            isError={isError} 
+            onClear={clearOutput} 
+          />
         </Box>
-      </HStack>
+      </Box>
     </Box>
   );
 };
