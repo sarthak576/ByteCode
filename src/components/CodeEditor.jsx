@@ -1,10 +1,12 @@
-import { useRef, useState } from "react";
-import { Box, HStack, Button, useToast } from "@chakra-ui/react";
+import { useRef, useState, useEffect } from "react";
+import { Box, HStack, Button, useToast, IconButton } from "@chakra-ui/react";
 import { Editor } from "@monaco-editor/react";
 import LanguageSelector from "./LanguageSelector";
 import { CODE_SNIPPETS } from "../constants";
 import Output from "./Output";
 import { executeCode } from "../api";
+import { SunIcon, MoonIcon, LinkIcon, RepeatIcon } from "@chakra-ui/icons";
+import { FaGithub, FaUserCircle } from "react-icons/fa";
 
 const CodeEditor = () => {
   const editorRef = useRef();
@@ -14,15 +16,17 @@ const CodeEditor = () => {
   const [output, setOutput] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
+  const [theme, setTheme] = useState("vs-dark");
 
-  const onMount = (editor) => {
-    editorRef.current = editor;
-    editor.focus();
-  };
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme") || "vs-dark";
+    setTheme(savedTheme);
+  }, []);
 
-  const onSelect = (language) => {
-    setLanguage(language);
-    setValue(CODE_SNIPPETS[language]);
+  const toggleTheme = () => {
+    const newTheme = theme === "vs-dark" ? "light" : "vs-dark";
+    setTheme(newTheme);
+    localStorage.setItem("theme", newTheme);
   };
 
   const runCode = async () => {
@@ -34,13 +38,7 @@ const CodeEditor = () => {
       setOutput(result.output.split("\n"));
       result.stderr ? setIsError(true) : setIsError(false);
     } catch (error) {
-      console.log(error);
-      toast({
-        title: "An error occurred.",
-        description: error.message || "Unable to run code",
-        status: "error",
-        duration: 6000,
-      });
+      toast({ title: "Error", description: error.message, status: "error" });
     } finally {
       setIsLoading(false);
     }
@@ -58,42 +56,35 @@ const CodeEditor = () => {
 
   return (
     <Box>
-      <HStack spacing={4} mb={4}>
-        <LanguageSelector language={language} onSelect={onSelect} />
-        <Button
-          variant="outline"
-          colorScheme="green"
-          isLoading={isLoading}
-          onClick={runCode}
-        >
-          Run Code ▶️
-        </Button>
-        <Button
-          variant="outline"
-          colorScheme="blue"
-          onClick={downloadCode}
-        >
-          Download ⬇️
-        </Button>
+      <HStack justifyContent="space-between" mb={4}>
+        <HStack spacing={4}>
+          <LanguageSelector language={language} onSelect={setLanguage} />
+          <Button onClick={runCode} isLoading={isLoading}>Run Code </Button>
+          <Button onClick={downloadCode}>Download</Button>
+          <IconButton icon={<RepeatIcon />} onClick={() => setOutput(null)} />
+          <IconButton icon={<LinkIcon />} />
+        </HStack>
+
+        <HStack spacing={2}>
+          <IconButton icon={theme === "vs-dark" ? <SunIcon /> : <MoonIcon />} onClick={toggleTheme} />
+          <FaGithub size={24} />
+          <FaUserCircle size={24} />
+        </HStack>
       </HStack>
-      <HStack spacing={4}>
-        <Box w="50%">
-          <Editor
-            options={{
-              minimap: { enabled: false },
-            }}
-            height="75vh"
-            theme="vs-dark"
-            language={language}
-            defaultValue={CODE_SNIPPETS[language]}
-            onMount={onMount}
-            value={value}
-            onChange={(value) => setValue(value)}
-          />
-        </Box>
-        <Output output={output} isError={isError} />
-      </HStack>
+
+      <Editor
+        options={{ minimap: { enabled: false } }}
+        height="75vh"
+        theme={theme}
+        language={language}
+        value={value}
+        onChange={(value) => setValue(value)}
+        onMount={(editor) => (editorRef.current = editor)}
+      />
+
+      <Output output={output} isError={isError} />
     </Box>
   );
 };
+
 export default CodeEditor;
