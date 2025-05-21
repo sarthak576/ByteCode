@@ -1,18 +1,40 @@
-import axios from "axios";
-import { LANGUAGE_VERSIONS } from "./constants";
-
-const API = axios.create({
-  baseURL: "https://emkc.org/api/v2/piston",
-})
 export const executeCode = async (language, sourceCode) => {
-  const response = await API.post("/execute", {
+  const API_ENDPOINT = "https://emkc.org/api/v2/piston/execute";
+  
+ const languageVersions = {
+  javascript: "18.15.0",  
+  python: "3.10.0",
+  java: "15.0.2",
+  typescript: "5.0.3",     
+  cpp: "10.2.0",
+  kotlin: "1.8.20",        
+};
+
+
+  const payload = {
     language: language,
-    version: LANGUAGE_VERSIONS[language],
-    files: [
-      {
-        content: sourceCode,
+    version: languageVersions[language] || "latest",
+    files: [{
+      content: sourceCode
+    }]
+  };
+
+  try {
+    const response = await fetch(API_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
       },
-    ],
-  });
-  return response.data;
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Execution error:", error);
+    throw error;
+  }
 };

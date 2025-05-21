@@ -11,21 +11,32 @@ import {
   useColorModeValue
 } from "@chakra-ui/react";
 import { FaChevronDown } from "react-icons/fa";
-import { SiJavascript, SiPython} from "react-icons/si";
+import { 
+  SiJavascript, 
+  SiPython, 
+  SiTypescript,
+  SiCplusplus,
+  SiKotlin,
+} from "react-icons/si";
 import { FaJava } from "react-icons/fa6";
-
 
 // Modern language versions (2023 standards)
 const LANGUAGE_VERSIONS = {
   "javascript": "ES2023",
   "python": "3.11",
-  "java": "21"
+  "java": "21",
+  "typescript": "5.2",
+  "cpp": "C++23",
+  "kotlin": "1.8.20",
 };
 
 const languageIcons = {
   javascript: SiJavascript,
   python: SiPython,
-  java: FaJava
+  java: FaJava,
+  typescript: SiTypescript,
+  cpp: SiCplusplus,
+  kotlin: SiKotlin,
 };
 
 const LanguageSelector = ({ language, onSelect }) => {
@@ -49,7 +60,12 @@ const LanguageSelector = ({ language, onSelect }) => {
             <Text textTransform="capitalize">{language}</Text>
           </Flex>
         </MenuButton>
-        <MenuList bg={menuBg} boxShadow="xl">
+        <MenuList 
+          bg={menuBg} 
+          boxShadow="xl"
+          maxH="60vh"
+          overflowY="auto"
+        >
           {Object.entries(LANGUAGE_VERSIONS).map(([lang, version]) => (
             <MenuItem 
               key={lang}
