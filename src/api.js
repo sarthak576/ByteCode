@@ -31,6 +31,11 @@ export const executeCode = async (language, sourceCode) => {
     if (!response.ok) {
       throw new Error(`API Error: ${response.status}`);
     }
+    if (!languageVersions[language]) {
+  alert("Language not supported or version unavailable.");
+  return;
+}
+
 
     return await response.json();
   } catch (error) {
