@@ -5,10 +5,10 @@ import {
   Button, 
   useToast, 
   IconButton,
-  useColorMode  // Added for global theme
+  useColorMode
 } from "@chakra-ui/react";
 import { Editor } from "@monaco-editor/react";
-import { FaPlay, FaDownload, FaSun, FaMoon, FaUpload } from "react-icons/fa"; // Added FaUpload
+import { FaPlay, FaDownload, FaSun, FaMoon, FaUpload, FaSignInAlt, FaSignOutAlt } from "react-icons/fa";
 import LanguageSelector from "./LanguageSelector";
 import { CODE_SNIPPETS } from "../constants";
 import Output from "./Output";
@@ -22,9 +22,9 @@ const CodeEditor = () => {
   const [output, setOutput] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
-  const { colorMode, toggleColorMode } = useColorMode(); // Global theme control
+  const [isAuthenticated, setIsAuthenticated] = useState(false); // Added for auth simulation
+  const { colorMode, toggleColorMode } = useColorMode();
 
-  // Editor theme now syncs with global theme
   const editorTheme = colorMode === 'light' ? 'light' : 'vs-dark';
 
   useEffect(() => {
@@ -76,8 +76,16 @@ const CodeEditor = () => {
     URL.revokeObjectURL(url);
   };
 
-  // Deploy function placeholder
   const handleDeploy = () => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to deploy your code.",
+        status: "warning",
+        duration: 3000,
+      });
+      return;
+    }
     toast({
       title: "Deployment Initiated",
       description: "Your code is being deployed...",
@@ -85,6 +93,16 @@ const CodeEditor = () => {
       duration: 3000,
     });
     // Add actual deployment logic here
+  };
+
+  const toggleAuth = () => {
+    setIsAuthenticated(!isAuthenticated);
+    toast({
+      title: isAuthenticated ? "Signed Out" : "Signed In",
+      description: isAuthenticated ? "You have been signed out." : "You have been signed in.",
+      status: isAuthenticated ? "info" : "success",
+      duration: 3000,
+    });
   };
 
   return (
@@ -105,6 +123,7 @@ const CodeEditor = () => {
               colorScheme="purple"
               onClick={handleDeploy}
               leftIcon={<FaUpload />}
+              isDisabled={!isAuthenticated}
             >
               Deploy
             </Button>
@@ -125,6 +144,12 @@ const CodeEditor = () => {
             >
               Download
             </Button>
+            <IconButton
+              icon={isAuthenticated ? <FaSignOutAlt /> : <FaSignInAlt />}
+              onClick={toggleAuth}
+              aria-label={isAuthenticated ? "Sign Out" : "Sign In"}
+              colorScheme={isAuthenticated ? "red" : "green"}
+            />
           </HStack>
         </HStack>
       </Box>
