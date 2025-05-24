@@ -1,35 +1,53 @@
 import React, { useRef, useState, useEffect } from "react";
-import { 
-  Box, 
-  HStack, 
-  Button, 
-  useToast, 
+import {
+  Box,
+  HStack,
+  Button,
+  useToast,
   IconButton,
-  useColorMode
+  useColorMode,
+  Flex,
+  Avatar,
+  Text
 } from "@chakra-ui/react";
 import { Editor } from "@monaco-editor/react";
-import { FaPlay, FaDownload, FaSun, FaMoon, FaUpload, FaSignInAlt, FaSignOutAlt } from "react-icons/fa";
+import {
+  FaPlay,
+  FaDownload,
+  FaSun,
+  FaMoon,
+  FaUpload,
+  FaSignOutAlt
+} from "react-icons/fa";
 import LanguageSelector from "./LanguageSelector";
 import { CODE_SNIPPETS } from "../constants";
 import Output from "./Output";
 import { executeCode } from "../api";
 
-const CodeEditor = () => {
+const CodeEditor = ({ setIsLoggedIn }) => {
   const editorRef = useRef();
   const toast = useToast();
+  const { colorMode, toggleColorMode } = useColorMode();
+
   const [value, setValue] = useState("");
   const [language, setLanguage] = useState("javascript");
   const [output, setOutput] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // Added for auth simulation
-  const { colorMode, toggleColorMode } = useColorMode();
+  const [user, setUser] = useState(null);
 
   const editorTheme = colorMode === 'light' ? 'light' : 'vs-dark';
 
   useEffect(() => {
     setValue(CODE_SNIPPETS[language]);
   }, [language]);
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem("googleUser");
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+  }, []);
 
   const onMount = (editor) => {
     editorRef.current = editor;
@@ -77,10 +95,10 @@ const CodeEditor = () => {
   };
 
   const handleDeploy = () => {
-    if (!isAuthenticated) {
+    if (!user) {
       toast({
         title: "Authentication Required",
-        description: "Please sign in to deploy your code.",
+        description: "Please sign in with Google to deploy your code.",
         status: "warning",
         duration: 3000,
       });
@@ -92,15 +110,16 @@ const CodeEditor = () => {
       status: "info",
       duration: 3000,
     });
-    // Add actual deployment logic here
   };
 
-  const toggleAuth = () => {
-    setIsAuthenticated(!isAuthenticated);
+  const handleLogout = () => {
+    localStorage.removeItem("googleUser");
+    setUser(null);
+    setIsLoggedIn(false);
     toast({
-      title: isAuthenticated ? "Signed Out" : "Signed In",
-      description: isAuthenticated ? "You have been signed out." : "You have been signed in.",
-      status: isAuthenticated ? "info" : "success",
+      title: "Logged Out",
+      description: "You have been signed out.",
+      status: "info",
       duration: 3000,
     });
   };
@@ -109,8 +128,11 @@ const CodeEditor = () => {
     <Box height="100vh" display="flex" flexDirection="column" bg={colorMode === 'light' ? 'gray.50' : 'gray.900'}>
       {/* Toolbar */}
       <Box bg={colorMode === 'light' ? 'gray.100' : 'gray.800'} p={2}>
-        <HStack spacing={4} justifyContent="space-between">
-          <LanguageSelector language={language} onSelect={onSelect} />
+        <Flex justify="space-between" align="center" mb={2}>
+          <Flex align="center" gap={3}>
+            {user?.picture && <Avatar name={user.name} src={user.picture} />}
+            <Text fontWeight="bold">{user?.name}</Text>
+          </Flex>
           <HStack spacing={2}>
             <IconButton 
               icon={colorMode === 'light' ? <FaMoon /> : <FaSun />} 
@@ -123,7 +145,7 @@ const CodeEditor = () => {
               colorScheme="purple"
               onClick={handleDeploy}
               leftIcon={<FaUpload />}
-              isDisabled={!isAuthenticated}
+              isDisabled={!user}
             >
               Deploy
             </Button>
@@ -145,13 +167,13 @@ const CodeEditor = () => {
               Download
             </Button>
             <IconButton
-              icon={isAuthenticated ? <FaSignOutAlt /> : <FaSignInAlt />}
-              onClick={toggleAuth}
-              aria-label={isAuthenticated ? "Sign Out" : "Sign In"}
-              colorScheme={isAuthenticated ? "red" : "green"}
+              icon={<FaSignOutAlt />}
+              onClick={handleLogout}
+              aria-label="Logout"
+              colorScheme="red"
             />
           </HStack>
-        </HStack>
+        </Flex>
       </Box>
 
       {/* Editor and Output */}

@@ -1,11 +1,19 @@
-import { Box } from "@chakra-ui/react";
-import CodeEditor from "./components/CodeEditor";
+import { useEffect, useState } from "react";
 import SignIn from "./components/Signin";
+import CodeEditor from "./components/CodeEditor";
 
 function App() {
-  return (
-   
-<SignIn/>
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const user = localStorage.getItem("googleUser");
+    if (user) setIsLoggedIn(true);
+  }, []);
+
+  return isLoggedIn ? (
+    <CodeEditor setIsLoggedIn={setIsLoggedIn} />
+  ) : (
+    <SignIn setIsLoggedIn={setIsLoggedIn} />
   );
 }
 
