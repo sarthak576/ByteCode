@@ -133,6 +133,12 @@ const CodeEditor = ({ setIsLoggedIn }) => {
             {user?.picture && <Avatar name={user.name} src={user.picture} />}
             <Text fontWeight="bold">{user?.name}</Text>
           </Flex>
+          <Flex justify="space-between" align="center" mb={2}>
+            <HStack spacing={4} justifyContent="space-between">
+          <LanguageSelector language={language} onSelect={onSelect} />
+          </HStack>
+          </Flex>
+         
           <HStack spacing={2}>
             <IconButton 
               icon={colorMode === 'light' ? <FaMoon /> : <FaSun />} 
