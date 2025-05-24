@@ -143,7 +143,7 @@ const CodeEditor = ({ setIsLoggedIn }) => {
             <Button
               variant="outline"
               colorScheme="purple"
-              onClick={handleDeploy}
+  onClick={() => window.open("https://vercel.com/", "_blank")}
               leftIcon={<FaUpload />}
               isDisabled={!user}
             >
