@@ -42,9 +42,9 @@ const SignIn = ({ setIsLoggedIn }) => {
             </Text>
           </VStack>
           <VStack spacing={4} w="full">
-            <Button leftIcon={<FaGithub />} bg="gray.800" color="white" w="full" size="lg"
+            {/* <Button leftIcon={<FaGithub />} bg="gray.800" color="white" w="full" size="lg"
               _hover={{ bg: 'gray.700' }}   onClick={() => window.location.href = "http://localhost:5173/codeeditor"}
->Sign in with GitHub</Button>
+>Sign in with GitHub</Button> */} 
             <Flex align="center" w="full">
               <Divider borderColor="gray.300" />
               <Text px={4} color="gray.500">or</Text>
