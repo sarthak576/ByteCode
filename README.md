@@ -5,6 +5,10 @@
 4. Live demo hosted on Vercel.  
 5. MIT licensed and authored by Sarthak Gupta.
 
-**🔟 Word Crisp:**  
-Real-time online compiler built with React, Vite, Tailwind CSS.
+**Why We Build it ?**  
+- Real-time online compiler built with React, Vite, Tailwind CSS.
+- Beginner Frinedly and simple minimalistic.
+- No Need to download compiler and set any path.
+- Neither any compilation error.(common fear of newbies - Fixed)
+  
 
